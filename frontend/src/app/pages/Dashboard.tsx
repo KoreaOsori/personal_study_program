@@ -13,6 +13,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import { useCertifications } from "../context/CertificationContext";
 import { CertificationManager } from "../components/CertificationManager";
+import { useAppStore } from "../store/useAppStore";
+import { useNavigate } from "react-router";
 import {
   Target,
   TrendingUp,
@@ -23,6 +25,7 @@ import {
   CheckCircle2,
   BookOpen,
   ArrowRight,
+  BookMarked,
 } from "lucide-react";
 import {
   RadarChart,
@@ -148,9 +151,15 @@ const getWeakAreasByCertName = (certName: string) => {
 };
 
 export function Dashboard() {
+  const navigate = useNavigate();
   const { certifications, selectedCertId, selectCertification, updateCertifications } =
     useCertifications();
+  const wrongAnswers = useAppStore((state) => state.wrongAnswers);
   const [selectedWeakSubject, setSelectedWeakSubject] = useState<string | null>(null);
+  const reviewCount = wrongAnswers.filter(
+    (wa) => wa.certId === selectedCertId && wa.nextReviewAt <= new Date().toISOString()
+  ).length;
+  const totalWrongCount = wrongAnswers.filter((wa) => wa.certId === selectedCertId).length;
 
   const currentCert = certifications.find((c) => c.id === selectedCertId);
 
@@ -337,6 +346,36 @@ export function Dashboard() {
 
         </div>
       </div>
+
+      {/* Review Queue Badge */}
+      {totalWrongCount > 0 && (
+        <Card className="border-orange-500/30 bg-orange-500/5">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <BookMarked className="w-6 h-6 text-orange-500" />
+                <div>
+                  <h3 className="font-semibold">
+                    오답노트 {totalWrongCount}문제
+                    {reviewCount > 0 && (
+                      <Badge variant="destructive" className="ml-2">
+                        {reviewCount}개 복습 필요
+                      </Badge>
+                    )}
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    반복 학습으로 약점을 보완하세요
+                  </p>
+                </div>
+              </div>
+              <Button onClick={() => navigate("/review")}>
+                오답노트 보기
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Daily Subject Scores - Full Width */}
       {(currentCert.name.includes("정보처리기사") ||

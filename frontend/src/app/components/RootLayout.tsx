@@ -10,6 +10,7 @@ import {
   BookOpen,
   Calendar,
   ClipboardList,
+  BookMarked,
   Settings,
   Menu,
   X,
@@ -20,6 +21,7 @@ const navigation = [
   { name: "학습하기", href: "/study", icon: BookOpen },
   { name: "학습플랜", href: "/plan", icon: Calendar },
   { name: "시험보기", href: "/test", icon: ClipboardList },
+  { name: "오답노트", href: "/review", icon: BookMarked },
   { name: "설정", href: "/settings", icon: Settings },
 ];
 
